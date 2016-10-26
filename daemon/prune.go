@@ -1,6 +1,8 @@
 package daemon
 
 import (
+	"regexp"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/docker/distribution/digest"
 	"github.com/docker/docker/api/types"
@@ -8,10 +10,12 @@ import (
 	"github.com/docker/docker/layer"
 	"github.com/docker/docker/pkg/directory"
 	"github.com/docker/docker/reference"
+	"github.com/docker/docker/runconfig"
 	"github.com/docker/docker/volume"
+	"github.com/docker/libnetwork"
 )
 
-// ContainersPrune remove unused containers
+// ContainersPrune removes unused containers
 func (daemon *Daemon) ContainersPrune(config *types.ContainersPruneConfig) (*types.ContainersPruneReport, error) {
 	rep := &types.ContainersPruneReport{}
 
@@ -22,7 +26,7 @@ func (daemon *Daemon) ContainersPrune(config *types.ContainersPruneConfig) (*typ
 			// TODO: sets RmLink to true?
 			err := daemon.ContainerRm(c.ID, &types.ContainerRmConfig{})
 			if err != nil {
-				logrus.Warnf("failed to prune container %s: %v", c.ID)
+				logrus.Warnf("failed to prune container %s: %v", c.ID, err)
 				continue
 			}
 			if cSize > 0 {
@@ -35,7 +39,7 @@ func (daemon *Daemon) ContainersPrune(config *types.ContainersPruneConfig) (*typ
 	return rep, nil
 }
 
-// VolumesPrune remove unused local volumes
+// VolumesPrune removes unused local volumes
 func (daemon *Daemon) VolumesPrune(config *types.VolumesPruneConfig) (*types.VolumesPruneReport, error) {
 	rep := &types.VolumesPruneReport{}
 
@@ -65,7 +69,7 @@ func (daemon *Daemon) VolumesPrune(config *types.VolumesPruneConfig) (*types.Vol
 	return rep, err
 }
 
-// ImagesPrune remove unused images
+// ImagesPrune removes unused images
 func (daemon *Daemon) ImagesPrune(config *types.ImagesPruneConfig) (*types.ImagesPruneReport, error) {
 	rep := &types.ImagesPruneReport{}
 
@@ -149,4 +153,73 @@ func (daemon *Daemon) ImagesPrune(config *types.ImagesPruneConfig) (*types.Image
 	}
 
 	return rep, nil
+}
+
+// localNetworksPrune removes unused local networks
+func (daemon *Daemon) localNetworksPrune(config *types.NetworksPruneConfig) (*types.NetworksPruneReport, error) {
+	rep := &types.NetworksPruneReport{}
+	var err error
+	// When the function returns true, the walk will stop.
+	l := func(nw libnetwork.Network) bool {
+		nwName := nw.Name()
+		predefined := runconfig.IsPreDefinedNetwork(nwName)
+		if !predefined && len(nw.Endpoints()) == 0 {
+			if err = daemon.DeleteNetwork(nw.ID()); err != nil {
+				logrus.Warnf("could not remove network %s: %v", nwName, err)
+				return false
+			}
+			rep.NetworksDeleted = append(rep.NetworksDeleted, nwName)
+		}
+		return false
+	}
+	daemon.netController.WalkNetworks(l)
+	return rep, err
+}
+
+// clusterNetworksPrune removes unused cluster networks
+func (daemon *Daemon) clusterNetworksPrune(config *types.NetworksPruneConfig) (*types.NetworksPruneReport, error) {
+	rep := &types.NetworksPruneReport{}
+	cluster := daemon.GetCluster()
+	networks, err := cluster.GetNetworks()
+	if err != nil {
+		return rep, err
+	}
+	networkIsInUse := regexp.MustCompile(`network ([[:alnum:]]+) is in use`)
+	for _, nw := range networks {
+		if nw.Name == "ingress" {
+			continue
+		}
+		// https://github.com/docker/docker/issues/24186
+		// `docker network inspect` unfortunately displays ONLY those containers that are local to that node.
+		// So we try to remove it anyway and check the error
+		err = cluster.RemoveNetwork(nw.ID)
+		if err != nil {
+			// we can safely ignore the "network .. is in use" error
+			match := networkIsInUse.FindStringSubmatch(err.Error())
+			if len(match) != 2 || match[1] != nw.ID {
+				logrus.Warnf("could not remove network %s: %v", nw.Name, err)
+			}
+			continue
+		}
+		rep.NetworksDeleted = append(rep.NetworksDeleted, nw.Name)
+	}
+	return rep, nil
+}
+
+// NetworksPrune removes unused networks
+func (daemon *Daemon) NetworksPrune(config *types.NetworksPruneConfig) (*types.NetworksPruneReport, error) {
+	rep := &types.NetworksPruneReport{}
+	clusterRep, err := daemon.clusterNetworksPrune(config)
+	if err != nil {
+		logrus.Warnf("could not remove cluster networks: %v", err)
+	} else {
+		rep.NetworksDeleted = append(rep.NetworksDeleted, clusterRep.NetworksDeleted...)
+	}
+	localRep, err := daemon.localNetworksPrune(config)
+	if err != nil {
+		logrus.Warnf("could not remove local networks: %v", err)
+	} else {
+		rep.NetworksDeleted = append(rep.NetworksDeleted, localRep.NetworksDeleted...)
+	}
+	return rep, err
 }

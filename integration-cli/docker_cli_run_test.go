@@ -1769,14 +1769,14 @@ func (s *DockerSuite) TestRunCleanupCmdOnEntrypoint(c *check.C) {
 	out = strings.TrimSpace(out)
 	expected := "root"
 	if daemonPlatform == "windows" {
-		if WindowsBaseImage == "windowsservercore" {
+		if strings.Contains(WindowsBaseImage, "windowsservercore") {
 			expected = `user manager\containeradministrator`
 		} else {
 			expected = `ContainerAdministrator` // nanoserver
 		}
 	}
 	if out != expected {
-		c.Fatalf("Expected output %s, got %q", expected, out)
+		c.Fatalf("Expected output %s, got %q. %s", expected, out, WindowsBaseImage)
 	}
 }
 
@@ -2623,7 +2623,7 @@ func (s *DockerSuite) TestRunModeUTSHost(c *check.C) {
 	c.Assert(out, checker.Contains, runconfig.ErrConflictUTSHostname.Error())
 }
 
-func (s *DockerSuite) TestRunTLSverify(c *check.C) {
+func (s *DockerSuite) TestRunTLSVerify(c *check.C) {
 	// Remote daemons use TLS and this test is not applicable when TLS is required.
 	testRequires(c, SameHostDaemon)
 	if out, code, err := dockerCmdWithError("ps"); err != nil || code != 0 {
@@ -3432,16 +3432,16 @@ func (s *DockerTrustSuite) TestTrustedRunFromBadTrustServer(c *check.C) {
 		c.Fatalf("Missing expected output on trusted push:\n%s", out)
 	}
 
-	// Now, try running with the original client from this new trust server. This should fallback to our cached timestamp and metadata.
+	// Now, try running with the original client from this new trust server. This should fail because the new root is invalid.
 	runCmd = exec.Command(dockerBinary, "run", repoName)
 	s.trustedCmd(runCmd)
 	out, _, err = runCommandWithOutput(runCmd)
 
-	if err != nil {
-		c.Fatalf("Error falling back to cached trust data: %s\n%s", err, out)
+	if err == nil {
+		c.Fatalf("Continuing with cached data even though it's an invalid root rotation: %s\n%s", err, out)
 	}
-	if !strings.Contains(string(out), "Error while downloading remote metadata, using cached timestamp") {
-		c.Fatalf("Missing expected output on trusted push:\n%s", out)
+	if !strings.Contains(out, "could not rotate trust to a new trusted root") {
+		c.Fatalf("Missing expected output on trusted run:\n%s", out)
 	}
 }
 
@@ -4518,4 +4518,52 @@ func (s *DockerSuite) TestRunStoppedLoggingDriverNoLeak(c *check.C) {
 
 	// NGoroutines is not updated right away, so we need to wait before failing
 	c.Assert(waitForGoroutines(nroutines), checker.IsNil)
+}
+
+// Handles error conditions for --credentialspec. Validating E2E success cases
+// requires additional infrastructure (AD for example) on CI servers.
+func (s *DockerSuite) TestRunCredentialSpecFailures(c *check.C) {
+	testRequires(c, DaemonIsWindows)
+	attempts := []struct{ value, expectedError string }{
+		{"rubbish", "invalid credential spec security option - value must be prefixed file:// or registry://"},
+		{"rubbish://", "invalid credential spec security option - value must be prefixed file:// or registry://"},
+		{"file://", "no value supplied for file:// credential spec security option"},
+		{"registry://", "no value supplied for registry:// credential spec security option"},
+		{`file://c:\blah.txt`, "path cannot be absolute"},
+		{`file://doesnotexist.txt`, "The system cannot find the file specified"},
+	}
+	for _, attempt := range attempts {
+		_, _, err := dockerCmdWithError("run", "--security-opt=credentialspec="+attempt.value, "busybox", "true")
+		c.Assert(err, checker.NotNil, check.Commentf("%s expected non-nil err", attempt.value))
+		c.Assert(err.Error(), checker.Contains, attempt.expectedError, check.Commentf("%s expected %s got %s", attempt.value, attempt.expectedError, err))
+	}
+}
+
+// Windows specific test to validate credential specs with a well-formed spec.
+// Note it won't actually do anything in CI configuration with the spec, but
+// it should not fail to run a container.
+func (s *DockerSuite) TestRunCredentialSpecWellFormed(c *check.C) {
+	testRequires(c, DaemonIsWindows, SameHostDaemon)
+	validCS := readFile(`fixtures\credentialspecs\valid.json`, c)
+	writeFile(filepath.Join(dockerBasePath, `credentialspecs\valid.json`), validCS, c)
+	dockerCmd(c, "run", `--security-opt=credentialspec=file://valid.json`, "busybox", "true")
+}
+
+// Windows specific test to ensure that a servicing app container is started
+// if necessary once a container exits. It does this by forcing a no-op
+// servicing event and verifying the event from Hyper-V-Compute
+func (s *DockerSuite) TestRunServicingContainer(c *check.C) {
+	testRequires(c, DaemonIsWindows, SameHostDaemon)
+
+	out, _ := dockerCmd(c, "run", "-d", WindowsBaseImage, "cmd", "/c", "mkdir c:\\programdata\\Microsoft\\Windows\\ContainerUpdates\\000_000_d99f45d0-ffc8-4af7-bd9c-ea6a62e035c9_200 && sc control cexecsvc 255")
+	containerID := strings.TrimSpace(out)
+	err := waitExited(containerID, 60*time.Second)
+	c.Assert(err, checker.IsNil)
+
+	cmd := exec.Command("powershell", "echo", `(Get-WinEvent -ProviderName "Microsoft-Windows-Hyper-V-Compute" -FilterXPath 'Event[System[EventID=2010]]' -MaxEvents 1).Message`)
+	out2, _, err := runCommandWithOutput(cmd)
+	c.Assert(err, checker.IsNil)
+	c.Assert(out2, checker.Contains, `"Servicing":true`, check.Commentf("Servicing container does not appear to have been started: %s", out2))
+	c.Assert(out2, checker.Contains, `Windows Container (Servicing)`, check.Commentf("Didn't find 'Windows Container (Servicing): %s", out2))
+	c.Assert(out2, checker.Contains, containerID+"_servicing", check.Commentf("Didn't find '%s_servicing': %s", containerID+"_servicing", out2))
 }

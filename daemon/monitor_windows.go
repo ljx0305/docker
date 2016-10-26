@@ -32,12 +32,12 @@ func (daemon *Daemon) postRunProcessing(container *container.Container, e libcon
 		}
 
 		if copts != nil {
-			newOpts = append(newOpts, *copts...)
+			newOpts = append(newOpts, copts...)
 		}
 
 		// Create a new servicing container, which will start, complete the update, and merge back the
 		// results if it succeeded, all as part of the below function call.
-		if err := daemon.containerd.Create((container.ID + "_servicing"), "", "", *spec, newOpts...); err != nil {
+		if err := daemon.containerd.Create((container.ID + "_servicing"), "", "", *spec, container.InitializeStdio, newOpts...); err != nil {
 			container.SetExitCode(-1)
 			return fmt.Errorf("Post-run update servicing failed: %s", err)
 		}

@@ -36,6 +36,8 @@ func newUpdateCommand(dockerCli *command.DockerCli) *cobra.Command {
 	flags := cmd.Flags()
 	flags.String("image", "", "Service image tag")
 	flags.String("args", "", "Service command args")
+	flags.Bool("rollback", false, "Rollback to previous specification")
+	flags.Bool("force", false, "Force update even if no changes require it")
 	addServiceFlags(cmd, opts)
 
 	flags.Var(newListOptsVar(), flagEnvRemove, "Remove an environment variable")
@@ -68,7 +70,20 @@ func runUpdate(dockerCli *command.DockerCli, flags *pflag.FlagSet, serviceID str
 		return err
 	}
 
-	err = updateService(flags, &service.Spec)
+	rollback, err := flags.GetBool("rollback")
+	if err != nil {
+		return err
+	}
+
+	spec := &service.Spec
+	if rollback {
+		spec = service.PreviousSpec
+		if spec == nil {
+			return fmt.Errorf("service does not have a previous specification to roll back to")
+		}
+	}
+
+	err = updateService(flags, spec)
 	if err != nil {
 		return err
 	}
@@ -81,15 +96,19 @@ func runUpdate(dockerCli *command.DockerCli, flags *pflag.FlagSet, serviceID str
 	if sendAuth {
 		// Retrieve encoded auth token from the image reference
 		// This would be the old image if it didn't change in this update
-		image := service.Spec.TaskTemplate.ContainerSpec.Image
+		image := spec.TaskTemplate.ContainerSpec.Image
 		encodedAuth, err := command.RetrieveAuthTokenFromImage(ctx, dockerCli, image)
 		if err != nil {
 			return err
 		}
 		updateOpts.EncodedRegistryAuth = encodedAuth
+	} else if rollback {
+		updateOpts.RegistryAuthFrom = types.RegistryAuthFromPreviousSpec
+	} else {
+		updateOpts.RegistryAuthFrom = types.RegistryAuthFromSpec
 	}
 
-	err = apiClient.ServiceUpdate(ctx, service.ID, service.Version, service.Spec, updateOpts)
+	err = apiClient.ServiceUpdate(ctx, service.ID, service.Version, *spec, updateOpts)
 	if err != nil {
 		return err
 	}
@@ -108,6 +127,12 @@ func updateService(flags *pflag.FlagSet, spec *swarm.ServiceSpec) error {
 	updateInt64Value := func(flag string, field *int64) {
 		if flags.Changed(flag) {
 			*field = flags.Lookup(flag).Value.(int64Value).Value()
+		}
+	}
+
+	updateFloat32 := func(flag string, field *float32) {
+		if flags.Changed(flag) {
+			*field, _ = flags.GetFloat32(flag)
 		}
 	}
 
@@ -195,13 +220,15 @@ func updateService(flags *pflag.FlagSet, spec *swarm.ServiceSpec) error {
 		return err
 	}
 
-	if anyChanged(flags, flagUpdateParallelism, flagUpdateDelay, flagUpdateFailureAction) {
+	if anyChanged(flags, flagUpdateParallelism, flagUpdateDelay, flagUpdateMonitor, flagUpdateFailureAction, flagUpdateMaxFailureRatio) {
 		if spec.UpdateConfig == nil {
 			spec.UpdateConfig = &swarm.UpdateConfig{}
 		}
 		updateUint64(flagUpdateParallelism, &spec.UpdateConfig.Parallelism)
 		updateDuration(flagUpdateDelay, &spec.UpdateConfig.Delay)
+		updateDuration(flagUpdateMonitor, &spec.UpdateConfig.Monitor)
 		updateString(flagUpdateFailureAction, &spec.UpdateConfig.FailureAction)
+		updateFloat32(flagUpdateMaxFailureRatio, &spec.UpdateConfig.MaxFailureRatio)
 	}
 
 	if flags.Changed(flagEndpointMode) {
@@ -229,6 +256,15 @@ func updateService(flags *pflag.FlagSet, spec *swarm.ServiceSpec) error {
 
 	if err := updateLogDriver(flags, &spec.TaskTemplate); err != nil {
 		return err
+	}
+
+	force, err := flags.GetBool("force")
+	if err != nil {
+		return err
+	}
+
+	if force {
+		spec.TaskTemplate.ForceUpdate++
 	}
 
 	return nil

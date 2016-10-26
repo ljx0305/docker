@@ -1,13 +1,17 @@
-<!--[metadata]>
-+++
-title = "Use the Docker command line"
-description = "Docker's CLI command description and usage"
-keywords = ["Docker, Docker documentation, CLI,  command line"]
-[menu.main]
-parent = "smn_cli"
-weight = -2
-+++
-<![end-metadata]-->
+---
+title: "Use the Docker command line"
+description: "Docker's CLI command description and usage"
+keywords: ["Docker, Docker documentation, CLI,  command line"]
+---
+
+<!-- This file is maintained within the docker/docker Github
+     repository at https://github.com/docker/docker/. Make all
+     pull requests against that repo. If you see this file in
+     another repository, consider it read-only there, as it will
+     periodically be overwritten by the definitive file. Pull
+     requests which include edits to this file in other repositories
+     will be rejected.
+-->
 
 # Use the Docker command line
 
@@ -23,17 +27,17 @@ A self-sufficient runtime for containers.
 
 Options:
 
-  --config=~/.docker              Location of client config files
-  -D, --debug                     Enable debug mode
-  -H, --host=[]                   Daemon socket(s) to connect to
-  --help                          Print usage
-  -l, --log-level=info            Set the logging level
-  --tls                           Use TLS; implied by --tlsverify
-  --tlscacert=~/.docker/ca.pem    Trust certs signed only by this CA
-  --tlscert=~/.docker/cert.pem    Path to TLS certificate file
-  --tlskey=~/.docker/key.pem      Path to TLS key file
-  --tlsverify                     Use TLS and verify the remote
-  -v, --version                   Print version information and quit
+      --config string      Location of client config files (default "/root/.docker")
+  -D, --debug              Enable debug mode
+      --help               Print usage
+  -H, --host value         Daemon socket(s) to connect to (default [])
+  -l, --log-level string   Set the logging level (debug, info, warn, error, fatal) (default "info")
+      --tls                Use TLS; implied by --tlsverify
+      --tlscacert string   Trust certs signed only by this CA (default "/root/.docker/ca.pem")
+      --tlscert string     Path to TLS certificate file (default "/root/.docker/cert.pem")
+      --tlskey string      Path to TLS key file (default "/root/.docker/key.pem")
+      --tlsverify          Use TLS and verify the remote
+  -v, --version            Print version information and quit
 
 Commands:
     attach    Attach to a running container
@@ -46,7 +50,7 @@ each `docker` command with `sudo`. To avoid having to use `sudo` with the
 `docker` and add users to it.
 
 For more information about installing Docker or `sudo` configuration, refer to
-the [installation](../../installation/index.md) instructions for your operating system.
+the [installation](https://docs.docker.com/engine/installation/) instructions for your operating system.
 
 ## Environment variables
 
@@ -122,7 +126,7 @@ directives, see the
 Once attached to a container, users detach from it and leave it running using
 the using `CTRL-p CTRL-q` key sequence. This detach key sequence is customizable
 using the `detachKeys` property. Specify a `<sequence>` value for the
-property. The format of the `<sequence>` is a comma-separated list of either 
+property. The format of the `<sequence>` is a comma-separated list of either
 a letter [a-Z], or the `ctrl-` combined with any of the following:
 
 * `a-z` (a single lowercase alpha character )
@@ -152,6 +156,7 @@ list of supported formatting directives, see the
 
 Following is a sample `config.json` file:
 
+    {% raw %}
     {
       "HttpHeaders": {
         "MyHeader": "MyValue"
@@ -161,6 +166,7 @@ Following is a sample `config.json` file:
       "serviceInspectFormat": "pretty",
       "detachKeys": "ctrl-e,e"
     }
+    {% endraw %}
 
 ### Notary
 

@@ -126,12 +126,6 @@ if [ ! "$GOPATH" ]; then
 	exit 1
 fi
 
-if [ "$DOCKER_EXPERIMENTAL" ]; then
-	echo >&2 '# WARNING! DOCKER_EXPERIMENTAL is set: building experimental features'
-	echo >&2
-	DOCKER_BUILDTAGS+=" experimental"
-fi
-
 DOCKER_BUILDTAGS+=" daemon"
 if ${PKG_CONFIG} 'libsystemd >= 209' 2> /dev/null ; then
 	DOCKER_BUILDTAGS+=" journald"
@@ -263,7 +257,7 @@ copy_binaries() {
 	if [ "$(go env GOOS)/$(go env GOARCH)" == "$(go env GOHOSTOS)/$(go env GOHOSTARCH)" ]; then
 		if [ -x /usr/local/bin/docker-runc ]; then
 			echo "Copying nested executables into $dir"
-			for file in containerd containerd-shim containerd-ctr runc init; do
+			for file in containerd containerd-shim containerd-ctr runc init proxy; do
 				cp `which "docker-$file"` "$dir/"
 				if [ "$2" == "hash" ]; then
 					hash_files "$dir/docker-$file"

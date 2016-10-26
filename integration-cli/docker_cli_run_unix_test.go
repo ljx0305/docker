@@ -929,10 +929,10 @@ func (s *DockerSuite) TestRunSeccompProfileDenyUnshare(c *check.C) {
 	]
 }`
 	tmpFile, err := ioutil.TempFile("", "profile.json")
-	defer tmpFile.Close()
 	if err != nil {
 		c.Fatal(err)
 	}
+	defer tmpFile.Close()
 
 	if _, err := tmpFile.Write([]byte(jsonData)); err != nil {
 		c.Fatal(err)
@@ -1000,10 +1000,10 @@ func (s *DockerSuite) TestRunSeccompProfileDenyUnshareUserns(c *check.C) {
 	]
 }`, uint64(0x10000000))
 	tmpFile, err := ioutil.TempFile("", "profile.json")
-	defer tmpFile.Close()
 	if err != nil {
 		c.Fatal(err)
 	}
+	defer tmpFile.Close()
 
 	if _, err := tmpFile.Write([]byte(jsonData)); err != nil {
 		c.Fatal(err)
@@ -1153,6 +1153,24 @@ func (s *DockerSuite) TestRunNoNewPrivSetuid(c *check.C) {
 	if out, _, err := runCommandWithOutput(runCmd); err != nil || !strings.Contains(out, "EUID=1000") {
 		c.Fatalf("expected output to contain EUID=1000, got %s: %v", out, err)
 	}
+}
+
+func (s *DockerSuite) TestRunAmbientCapabilities(c *check.C) {
+	testRequires(c, DaemonIsLinux, ambientCapabilities)
+
+	// test that a non root user can gain capabilities
+	runCmd := exec.Command(dockerBinary, "run", "--user", "1000", "--cap-add", "chown", "busybox", "chown", "100", "/tmp")
+	_, _, err := runCommandWithOutput(runCmd)
+	c.Assert(err, check.IsNil)
+	// test that non root user has default capabilities
+	runCmd = exec.Command(dockerBinary, "run", "--user", "1000", "busybox", "chown", "100", "/tmp")
+	_, _, err = runCommandWithOutput(runCmd)
+	c.Assert(err, check.IsNil)
+	// test this fails without cap_chown
+	runCmd = exec.Command(dockerBinary, "run", "--user", "1000", "--cap-drop", "chown", "busybox", "chown", "100", "/tmp")
+	out, _, err := runCommandWithOutput(runCmd)
+	c.Assert(err, checker.NotNil, check.Commentf(out))
+	c.Assert(strings.TrimSpace(out), checker.Equals, "chown: /tmp: Operation not permitted")
 }
 
 func (s *DockerSuite) TestRunApparmorProcDirectory(c *check.C) {

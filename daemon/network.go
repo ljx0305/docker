@@ -362,9 +362,11 @@ func (daemon *Daemon) GetNetworkDriverList() []string {
 		return nil
 	}
 
-	// TODO: Replace this with proper libnetwork API
-	pluginList := []string{"overlay"}
-	pluginMap := map[string]bool{"overlay": true}
+	pluginList := daemon.netController.BuiltinDrivers()
+	pluginMap := make(map[string]bool)
+	for _, plugin := range pluginList {
+		pluginMap[plugin] = true
+	}
 
 	networks := daemon.netController.Networks()
 

@@ -49,8 +49,8 @@ esac
 # the following lines are in sorted order, FYI
 clone git github.com/Azure/go-ansiterm 388960b655244e76e24c75f48631564eaefade62
 clone git github.com/Microsoft/hcsshim v0.5.1
-clone git github.com/Microsoft/go-winio v0.3.4
-clone git github.com/Sirupsen/logrus v0.10.0 # logrus is a common dependency among multiple deps
+clone git github.com/Microsoft/go-winio v0.3.5
+clone git github.com/Sirupsen/logrus f76d643702a30fbffecdfe50831e11881c96ceb3 https://github.com/aaronlehmann/logrus
 clone git github.com/docker/libtrust 9cbd2a1374f46905c68a4eb3694a130610adc62a
 clone git github.com/go-check/check 4ed411733c5785b40214c70bce814c3a3a689609 https://github.com/cpuguy83/check.git
 clone git github.com/gorilla/context v1.1
@@ -63,14 +63,14 @@ clone git github.com/vdemeester/shakers 24d7f1d6a71aa5d9cbe7390e4afb66b7eef9e1b3
 # forked golang.org/x/net package includes a patch for lazy loading trace templates
 clone git golang.org/x/net 2beffdc2e92c8a3027590f898fe88f69af48a3f8 https://github.com/tonistiigi/net.git
 clone git golang.org/x/sys eb2c74142fd19a79b3f237334c7384d5167b1b46 https://github.com/golang/sys.git
-clone git github.com/docker/go-units f2145db703495b2e525c59662db69a7344b00bb8
+clone git github.com/docker/go-units 8a7beacffa3009a9ac66bad506b18ffdd110cf97
 clone git github.com/docker/go-connections 988efe982fdecb46f01d53465878ff1f2ff411ce
 
 clone git github.com/RackSec/srslog 365bf33cd9acc21ae1c355209865f17228ca534e
 clone git github.com/imdario/mergo 0.2.1
 
 #get libnetwork packages
-clone git github.com/docker/libnetwork 66764992b5bff765a5aa2318ca3768ad22c4ce95
+clone git github.com/docker/libnetwork 9fbb4ecbb45af655c4ac3c2f3a849b2294cb447a
 clone git github.com/docker/go-events 18b43f1bc85d9cdd42c05a6cd2d444c7a200a894
 clone git github.com/armon/go-radix e39d623f12e8e41c7b5529e9a9dd67a1e2261f80
 clone git github.com/armon/go-metrics eb0af217e5e9747e41dd5303755356b62d28e3ec
@@ -99,9 +99,9 @@ clone git github.com/mistifyio/go-zfs 22c9b32c84eb0d0c6f4043b6e90fc94073de92fa
 clone git github.com/pborman/uuid v1.0
 
 # get desired notary commit, might also need to be updated in Dockerfile
-clone git github.com/docker/notary v0.3.0
+clone git github.com/docker/notary v0.4.2
 
-clone git google.golang.org/grpc v1.0.1-GA https://github.com/grpc/grpc-go.git
+clone git google.golang.org/grpc v1.0.2 https://github.com/grpc/grpc-go.git
 clone git github.com/miekg/pkcs11 df8ae6ca730422dba20c768ff38ef7d79077a59f
 clone git github.com/docker/go v1.5.1-1-1-gbaf439e
 clone git github.com/agl/ed25519 d2b94fd789ea21d12fac1a4443dd3a3f79cda72c
@@ -118,7 +118,7 @@ clone git github.com/golang/protobuf 1f49d83d9aa00e6ce4fc8258c71cc7786aec968a
 # gelf logging driver deps
 clone git github.com/Graylog2/go-gelf aab2f594e4585d43468ac57287b0dece9d806883
 
-clone git github.com/fluent/fluent-logger-golang v1.2.0
+clone git github.com/fluent/fluent-logger-golang v1.2.1
 # fluent-logger-golang deps
 clone git github.com/philhofer/fwd 899e4efba8eaa1fea74175308f3fae18ff3319fa
 clone git github.com/tinylib/msgp 75ee40d2601edf122ef667e2a07d600d4c44490c
@@ -131,23 +131,27 @@ clone git github.com/aws/aws-sdk-go v1.1.30
 clone git github.com/go-ini/ini 060d7da055ba6ec5ea7a31f116332fe5efa04ce0
 clone git github.com/jmespath/go-jmespath 0b12d6b521d83fc7f755e7cfc1b1fbdd35a01a74
 
+# logentries
+clone git github.com/bsphere/le_go d3308aafe090956bc89a65f0769f58251a1b4f03
+
 # gcplogs deps
 clone git golang.org/x/oauth2 2baa8a1b9338cf13d9eeb27696d761155fa480be https://github.com/golang/oauth2.git
 clone git google.golang.org/api dc6d2353af16e2a2b0ff6986af051d473a4ed468 https://code.googlesource.com/google-api-go-client
 clone git google.golang.org/cloud dae7e3d993bc3812a2185af60552bb6b847e52a0 https://code.googlesource.com/gocloud
 
 # native credentials
-clone git github.com/docker/docker-credential-helpers v0.3.0
+clone git github.com/docker/docker-credential-helpers f72c04f1d8e71959a6d103f808c50ccbad79b9fd
 
 # containerd
-clone git github.com/docker/containerd 837e8c5e1cad013ed57f5c2090c8591c10cbbdae
+clone git github.com/docker/containerd 52ef1ceb4b660c42cf4ea9013180a5663968d4c7
+clone git github.com/tonistiigi/fifo 8c56881ce5e63e19e2dfc495c8af0fb90916467d
 
 # cluster
-clone git github.com/docker/swarmkit 7e63bdefb94e5bea2641e8bdebae2cfa61a0ed44
+clone git github.com/docker/swarmkit 3b221eb0391d34ae0b9dac65df02b5b64de6dff2
 clone git github.com/golang/mock bd3c8e81be01eef76d4b503f5e687d2d1354d2d9
 clone git github.com/gogo/protobuf v0.3
 clone git github.com/cloudflare/cfssl 7fb22c8cba7ecaf98e4082d22d65800cf45e042a
-clone git github.com/google/certificate-transparency 0f6e3d1d1ba4d03fdaab7cd716f36255c2e48341
+clone git github.com/google/certificate-transparency d90e65c3a07988180c5b1ece71791c0b6506826e
 clone git golang.org/x/crypto 3fbbcd23f1cb824e69491a5930cfeff09b12f4d2 https://github.com/golang/crypto.git
 clone git golang.org/x/time a4bde12657593d5e90d0533a3e4fd95e635124cb https://github.com/golang/time.git
 clone git github.com/mreiferson/go-httpclient 63fe23f7434723dc904c901043af07931f293c47
@@ -167,7 +171,7 @@ clone git github.com/pkg/errors 01fa4104b9c248c8945d14d9f128454d5b28d595
 
 # cli
 clone git github.com/spf13/cobra v1.4.1 https://github.com/dnephin/cobra.git
-clone git github.com/spf13/pflag cb88ea77998c3f024757528e3305022ab50b43be
+clone git github.com/spf13/pflag dabebe21bf790f782ea4c7bbd2efc430de182afd
 clone git github.com/inconshreveable/mousetrap 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
 clone git github.com/flynn-archive/go-shlex 3f9db97f856818214da2e1057f8ad84803971cff
 

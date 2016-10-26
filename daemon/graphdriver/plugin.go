@@ -1,12 +1,10 @@
-// +build experimental
-
 package graphdriver
 
 import (
 	"fmt"
 	"io"
 
-	"github.com/docker/docker/plugin/getter"
+	"github.com/docker/docker/pkg/plugingetter"
 )
 
 type pluginClient interface {
@@ -18,8 +16,8 @@ type pluginClient interface {
 	SendFile(string, io.Reader, interface{}) error
 }
 
-func lookupPlugin(name, home string, opts []string, pluginGetter getter.PluginGetter) (Driver, error) {
-	pl, err := pluginGetter.Get(name, "GraphDriver", getter.LOOKUP)
+func lookupPlugin(name, home string, opts []string, pg plugingetter.PluginGetter) (Driver, error) {
+	pl, err := pg.Get(name, "GraphDriver", plugingetter.LOOKUP)
 	if err != nil {
 		return nil, fmt.Errorf("Error looking up graphdriver plugin %s: %v", name, err)
 	}

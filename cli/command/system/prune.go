@@ -15,13 +15,13 @@ type pruneOptions struct {
 	all   bool
 }
 
-// NewPruneCommand creates a new cobra.Command for `docker du`
+// NewPruneCommand creates a new cobra.Command for `docker prune`
 func NewPruneCommand(dockerCli *command.DockerCli) *cobra.Command {
 	var opts pruneOptions
 
 	cmd := &cobra.Command{
-		Use:   "prune [COMMAND]",
-		Short: "Remove unused data.",
+		Use:   "prune [OPTIONS]",
+		Short: "Remove unused data",
 		Args:  cli.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runPrune(dockerCli, opts)
@@ -39,6 +39,7 @@ const (
 	warning = `WARNING! This will remove:
 	- all stopped containers
 	- all volumes not used by at least one container
+	- all networks not used by at least one container
 	%s
 Are you sure you want to continue?`
 
@@ -64,13 +65,14 @@ func runPrune(dockerCli *command.DockerCli, opts pruneOptions) error {
 	for _, pruneFn := range []func(dockerCli *command.DockerCli) (uint64, string, error){
 		prune.RunContainerPrune,
 		prune.RunVolumePrune,
+		prune.RunNetworkPrune,
 	} {
 		spc, output, err := pruneFn(dockerCli)
 		if err != nil {
 			return err
 		}
-		if spc > 0 {
-			spaceReclaimed += spc
+		spaceReclaimed += spc
+		if output != "" {
 			fmt.Fprintln(dockerCli.Out(), output)
 		}
 	}

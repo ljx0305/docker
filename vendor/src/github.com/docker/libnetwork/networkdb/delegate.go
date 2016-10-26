@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net"
 	"strings"
-	"time"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/gogo/protobuf/proto"
@@ -121,7 +120,7 @@ func (nDB *NetworkDB) handleNetworkEvent(nEvent *NetworkEvent) bool {
 		n.ltime = nEvent.LTime
 		n.leaving = nEvent.Type == NetworkEventTypeLeave
 		if n.leaving {
-			n.leaveTime = time.Now()
+			n.reapTime = reapInterval
 		}
 
 		nDB.addNetworkNode(nEvent.NetworkID, nEvent.NodeName)
@@ -178,7 +177,7 @@ func (nDB *NetworkDB) handleTableEvent(tEvent *TableEvent) bool {
 	}
 
 	if e.deleting {
-		e.deleteTime = time.Now()
+		e.reapTime = reapInterval
 	}
 
 	nDB.Lock()
@@ -318,12 +317,13 @@ func (nDB *NetworkDB) handleBulkSync(buf []byte) {
 
 	// Don't respond to a bulk sync which was not unsolicited
 	if !bsm.Unsolicited {
-		nDB.RLock()
+		nDB.Lock()
 		ch, ok := nDB.bulkSyncAckTbl[bsm.NodeName]
-		nDB.RUnlock()
 		if ok {
 			close(ch)
+			delete(nDB.bulkSyncAckTbl, bsm.NodeName)
 		}
+		nDB.Unlock()
 
 		return
 	}

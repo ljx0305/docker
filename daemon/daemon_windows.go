@@ -153,7 +153,8 @@ func verifyPlatformContainerSettings(daemon *Daemon, hostConfig *containertypes.
 }
 
 // platformReload update configuration with platform specific options
-func (daemon *Daemon) platformReload(config *Config, attributes *map[string]string) {
+func (daemon *Daemon) platformReload(config *Config) map[string]string {
+	return map[string]string{}
 }
 
 // verifyDaemonSettings performs validation of daemon config struct
@@ -495,6 +496,8 @@ func (daemon *Daemon) setDefaultIsolation() error {
 			}
 			if containertypes.Isolation(val).IsProcess() {
 				if system.IsWindowsClient() {
+					// @engine maintainers. This block should not be removed. It partially enforces licensing
+					// restrictions on Windows. Ping @jhowardmsft if there are concerns or PRs to change this.
 					return fmt.Errorf("Windows client operating systems only support Hyper-V containers")
 				}
 				daemon.defaultIsolation = containertypes.Isolation("process")

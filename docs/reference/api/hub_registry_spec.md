@@ -1,13 +1,18 @@
-<!--[metadata]>
-+++
-draft = true
-title = "The Docker Hub and the Registry v1"
-description = "Documentation for docker Registry and Registry API"
-keywords = ["docker, registry, api,  hub"]
-[menu.main]
-parent="smn_hub_ref"
-+++
-<![end-metadata]-->
+---
+published: false
+title: "The Docker Hub and the Registry v1"
+description: "Documentation for docker Registry and Registry API"
+keywords: ["docker, registry, api,  hub"]
+---
+
+<!-- This file is maintained within the docker/docker Github
+     repository at https://github.com/docker/docker/. Make all
+     pull requests against that repo. If you see this file in
+     another repository, consider it read-only there, as it will
+     periodically be overwritten by the definitive file. Pull
+     requests which include edits to this file in other repositories
+     will be rejected.
+-->
 
 # The Docker Hub and the Registry v1
 

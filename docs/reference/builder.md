@@ -1,13 +1,17 @@
-<!--[metadata]>
-+++
-title = "Dockerfile reference"
-description = "Dockerfiles use a simple DSL which allows you to automate the steps you would normally manually take to create an image."
-keywords = ["builder, docker, Dockerfile, automation,  image creation"]
-[menu.main]
-parent = "engine_ref"
-weight=-90
-+++
-<![end-metadata]-->
+---
+title: "Dockerfile reference"
+description: "Dockerfiles use a simple DSL which allows you to automate the steps you would normally manually take to create an image."
+keywords: ["builder, docker, Dockerfile, automation,  image creation"]
+---
+
+<!-- This file is maintained within the docker/docker Github
+     repository at https://github.com/docker/docker/. Make all
+     pull requests against that repo. If you see this file in
+     another repository, consider it read-only there, as it will
+     periodically be overwritten by the definitive file. Pull
+     requests which include edits to this file in other repositories
+     will be rejected.
+-->
 
 # Dockerfile reference
 
@@ -26,7 +30,7 @@ Practices](../userguide/eng-image/dockerfile_best-practices.md) for a tip-orient
 The [`docker build`](commandline/build.md) command builds an image from
 a `Dockerfile` and a *context*. The build's context is the files at a specified
 location `PATH` or `URL`. The `PATH` is a directory on your local filesystem.
-The `URL` is a the location of a Git repository.
+The `URL` is a Git repository location.
 
 A context is processed recursively. So, a `PATH` includes any subdirectories and
 the `URL` includes the repository and its submodules. A simple build command
@@ -134,7 +138,7 @@ instruction must be \`FROM\`** in order to specify the [*Base
 Image*](glossary.md#base-image) from which you are building.
 
 Docker treats lines that *begin* with `#` as a comment, unless the line is
-a valid [parser directive](builder.md#parser-directives). A `#` marker anywhere
+a valid [parser directive](#parser-directives). A `#` marker anywhere
 else in a line is treated as an argument. This allows statements like:
 
 ```Dockerfile
@@ -509,7 +513,7 @@ default is `/bin/sh -c` on Linux or `cmd /S /C` on Windows)
 - `RUN ["executable", "param1", "param2"]` (*exec* form)
 
 The `RUN` instruction will execute any commands in a new layer on top of the
-current image and commit the results. The resulting comitted image will be
+current image and commit the results. The resulting committed image will be
 used for the next step in the `Dockerfile`.
 
 Layering `RUN` instructions and generating commits conforms to the core
@@ -524,13 +528,15 @@ command.
 
 In the *shell* form you can use a `\` (backslash) to continue a single
 RUN instruction onto the next line. For example, consider these two lines:
+
 ```
-RUN /bin/bash -c 'source $HOME/.bashrc ;\
+RUN /bin/bash -c 'source $HOME/.bashrc; \
 echo $HOME'
 ```
 Together they are equivalent to this single line:
+
 ```
-RUN /bin/bash -c 'source $HOME/.bashrc ; echo $HOME'
+RUN /bin/bash -c 'source $HOME/.bashrc; echo $HOME'
 ```
 
 > **Note**:
@@ -646,7 +652,7 @@ If the user specifies arguments to `docker run` then they will override the
 default specified in `CMD`.
 
 > **Note**:
-> don't confuse `RUN` with `CMD`. `RUN` actually runs a command and commits
+> Don't confuse `RUN` with `CMD`. `RUN` actually runs a command and commits
 > the result; `CMD` does not execute anything at build time, but specifies
 > the intended command for the image.
 
@@ -698,7 +704,7 @@ To view an image's labels, use the `docker inspect` command.
 
     MAINTAINER <name>
 
-The `MAINTAINER` instruction sets the *Author* field of the generated images. 
+The `MAINTAINER` instruction sets the *Author* field of the generated images.
 The `LABEL` instruction is a much more flexible version of this and you should use
 it instead, as it enables setting any metadata you require, and can be viewed
 easily, for example with `docker inspect`. To set a label corresponding to the
@@ -756,7 +762,7 @@ and
     ENV myDog Rex The Dog
     ENV myCat fluffy
 
-will yield the same net results in the final container, but the first form
+will yield the same net results in the final image, but the first form
 is preferred because it produces a single cache layer.
 
 The environment variables set using `ENV` will persist when a container is run
@@ -778,7 +784,7 @@ ADD has two forms:
 whitespace)
 
 The `ADD` instruction copies new files, directories or remote file URLs from `<src>`
-and adds them to the filesystem of the container at the path `<dest>`.
+and adds them to the filesystem of the image at the path `<dest>`.
 
 Multiple `<src>` resource may be specified but if they are files or
 directories then they must be relative to the source directory that is
@@ -811,7 +817,7 @@ of whether or not the file has changed and the cache should be updated.
 > can only contain a URL based `ADD` instruction. You can also pass a
 > compressed archive through STDIN: (`docker build - < archive.tar.gz`),
 > the `Dockerfile` at the root of the archive and the rest of the
-> archive will get used at the context of the build.
+> archive will be used as the context of the build.
 
 > **Note**:
 > If your URL files are protected using authentication, you
@@ -853,7 +859,7 @@ guide](../userguide/eng-image/dockerfile_best-practices.md#build-cache) for more
 - If `<src>` is a *local* tar archive in a recognized compression format
   (identity, gzip, bzip2 or xz) then it is unpacked as a directory. Resources
   from *remote* URLs are **not** decompressed. When a directory is copied or
-  unpacked, it has the same behavior as `tar -x`: the result is the union of:
+  unpacked, it has the same behavior as `tar -x`, the result is the union of:
 
     1. Whatever existed at the destination path and
     2. The contents of the source tree, with conflicts resolved in favor
@@ -1268,9 +1274,9 @@ The output of the final `pwd` command in this `Dockerfile` would be
     ARG <name>[=<default value>]
 
 The `ARG` instruction defines a variable that users can pass at build-time to
-the builder with the `docker build` command using the `--build-arg
-<varname>=<value>` flag. If a user specifies a build argument that was not
-defined in the Dockerfile, the build outputs an error.
+the builder with the `docker build` command using the
+`--build-arg <varname>=<value>` flag. If a user specifies a build argument
+that was not defined in the Dockerfile, the build outputs an error.
 
 ```
 One or more build-args were not consumed, failing build.
@@ -1383,8 +1389,11 @@ corresponding `ARG` instruction in the Dockerfile.
 * `NO_PROXY`
 * `no_proxy`
 
-To use these, simply pass them on the command line using the `--build-arg
-<varname>=<value>` flag.
+To use these, simply pass them on the command line using the flag:
+
+```
+--build-arg <varname>=<value>
+```
 
 ### Impact on build caching
 
@@ -1682,7 +1691,7 @@ a shell operates. For example, using `SHELL cmd /S /C /V:ON|OFF` on Windows, del
 environment variable expansion semantics could be modified.
 
 The `SHELL` instruction can also be used on Linux should an alternate shell be
-required such `zsh`, `csh`, `tcsh` and others.
+required such as `zsh`, `csh`, `tcsh` and others.
 
 The `SHELL` feature was added in Docker 1.12.
 

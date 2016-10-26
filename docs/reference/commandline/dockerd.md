@@ -1,14 +1,18 @@
-<!--[metadata]>
-+++
-title = "dockerd"
-aliases = ["/engine/reference/commandline/daemon/"]
-description = "The daemon command description and usage"
-keywords = ["container, daemon, runtime"]
-[menu.main]
-parent = "smn_cli"
-weight = -1
-+++
-<![end-metadata]-->
+---
+title: "dockerd"
+aliases: ["/engine/reference/commandline/daemon/"]
+description: "The daemon command description and usage"
+keywords: ["container, daemon, runtime"]
+---
+
+<!-- This file is maintained within the docker/docker Github
+     repository at https://github.com/docker/docker/. Make all
+     pull requests against that repo. If you see this file in
+     another repository, consider it read-only there, as it will
+     periodically be overwritten by the definitive file. Pull
+     requests which include edits to this file in other repositories
+     will be rejected.
+-->
 
 # daemon
 
@@ -19,68 +23,70 @@ A self-sufficient runtime for containers.
 
 Options:
 
-      --add-runtime=[]                       Register an additional OCI compatible runtime
-      --api-cors-header                      Set CORS headers in the remote API
-      --authorization-plugin=[]              Authorization plugins to load
-      -b, --bridge                           Attach containers to a network bridge
-      --bip                                  Specify network bridge IP
-      --cgroup-parent                        Set parent cgroup for all containers
-      --cluster-advertise                    Address or interface name to advertise
-      --cluster-store                        URL of the distributed storage backend
-      --cluster-store-opt=map[]              Set cluster store options
-      --config-file=/etc/docker/daemon.json  Daemon configuration file
-      --containerd                           Path to containerd socket
-      -D, --debug                            Enable debug mode
-      --default-gateway                      Container default gateway IPv4 address
-      --default-gateway-v6                   Container default gateway IPv6 address
-      --default-runtime=runc                 Default OCI runtime for containers
-      --default-ulimit=[]                    Default ulimits for containers
-      --disable-legacy-registry              Disable contacting legacy registries
-      --dns=[]                               DNS server to use
-      --dns-opt=[]                           DNS options to use
-      --dns-search=[]                        DNS search domains to use
-      --exec-opt=[]                          Runtime execution options
-      --exec-root=/var/run/docker            Root directory for execution state files
-      --fixed-cidr                           IPv4 subnet for fixed IPs
-      --fixed-cidr-v6                        IPv6 subnet for fixed IPs
-      -G, --group=docker                     Group for the unix socket
-      -g, --graph=/var/lib/docker            Root of the Docker runtime
-      -H, --host=[]                          Daemon socket(s) to connect to
-      --help                                 Print usage
-      --icc=true                             Enable inter-container communication
-      --init                                 Run an init inside containers to forward signals and reap processes
-      --init-path                            Path to the docker-init binary
-      --insecure-registry=[]                 Enable insecure registry communication
-      --ip=0.0.0.0                           Default IP when binding container ports
-      --ip-forward=true                      Enable net.ipv4.ip_forward
-      --ip-masq=true                         Enable IP masquerading
-      --iptables=true                        Enable addition of iptables rules
-      --ipv6                                 Enable IPv6 networking
-      -l, --log-level=info                   Set the logging level
-      --label=[]                             Set key=value labels to the daemon
-      --live-restore                         Enables keeping containers alive during daemon downtime
-      --log-driver=json-file                 Default driver for container logs
-      --log-opt=map[]                        Default log driver options for containers
-      --max-concurrent-downloads=3           Set the max concurrent downloads for each pull
-      --max-concurrent-uploads=5             Set the max concurrent uploads for each push
-      --mtu                                  Set the containers network MTU
-      --oom-score-adjust=-500                Set the oom_score_adj for the daemon
-      -p, --pidfile=/var/run/docker.pid      Path to use for daemon PID file
-      --raw-logs                             Full timestamps without ANSI coloring
-      --registry-mirror=[]                   Preferred Docker registry mirror
-      -s, --storage-driver                   Storage driver to use
-      --selinux-enabled                      Enable selinux support
-      --storage-opt=[]                       Storage driver options
-      --swarm-default-advertise-addr         Set default address or interface for swarm advertised address
-      --tls                                  Use TLS; implied by --tlsverify
-      --tlscacert=~/.docker/ca.pem           Trust certs signed only by this CA
-      --tlscert=~/.docker/cert.pem           Path to TLS certificate file
-      --tlskey=~/.docker/key.pem             Path to TLS key file
-      --tlsverify                            Use TLS and verify the remote
-      --userland-proxy=true                  Use userland proxy for loopback traffic
-      --userland-proxy-path=""               Path to the userland proxy binary
-      --userns-remap                         User/Group setting for user namespaces
-      -v, --version                          Print version information and quit
+      --add-runtime value                     Register an additional OCI compatible runtime (default [])
+      --api-cors-header string                Set CORS headers in the remote API
+      --authorization-plugin value            Authorization plugins to load (default [])
+      --bip string                            Specify network bridge IP
+  -b, --bridge string                         Attach containers to a network bridge
+      --cgroup-parent string                  Set parent cgroup for all containers
+      --cluster-advertise string              Address or interface name to advertise
+      --cluster-store string                  URL of the distributed storage backend
+      --cluster-store-opt value               Set cluster store options (default map[])
+      --config-file string                    Daemon configuration file (default "/etc/docker/daemon.json")
+      --containerd string                     Path to containerd socket
+  -D, --debug                                 Enable debug mode
+      --default-gateway value                 Container default gateway IPv4 address
+      --default-gateway-v6 value              Container default gateway IPv6 address
+      --default-runtime string                Default OCI runtime for containers (default "runc")
+      --default-ulimit value                  Default ulimits for containers (default [])
+      --disable-legacy-registry               Disable contacting legacy registries
+      --dns value                             DNS server to use (default [])
+      --dns-opt value                         DNS options to use (default [])
+      --dns-search value                      DNS search domains to use (default [])
+      --exec-opt value                        Runtime execution options (default [])
+      --exec-root string                      Root directory for execution state files (default "/var/run/docker")
+      --experimental                          Enable experimental features
+      --fixed-cidr string                     IPv4 subnet for fixed IPs
+      --fixed-cidr-v6 string                  IPv6 subnet for fixed IPs
+  -g, --graph string                          Root of the Docker runtime (default "/var/lib/docker")
+  -G, --group string                          Group for the unix socket (default "docker")
+      --help                                  Print usage
+  -H, --host value                            Daemon socket(s) to connect to (default [])
+      --icc                                   Enable inter-container communication (default true)
+      --init                                  Run an init in the container to forward signals and reap processes
+      --init-path string                      Path to the docker-init binary
+      --insecure-registry value               Enable insecure registry communication (default [])
+      --ip value                              Default IP when binding container ports (default 0.0.0.0)
+      --ip-forward                            Enable net.ipv4.ip_forward (default true)
+      --ip-masq                               Enable IP masquerading (default true)
+      --iptables                              Enable addition of iptables rules (default true)
+      --ipv6                                  Enable IPv6 networking
+      --label value                           Set key=value labels to the daemon (default [])
+      --live-restore                          Enable live restore of docker when containers are still running
+      --log-driver string                     Default driver for container logs (default "json-file")
+  -l, --log-level string                      Set the logging level (debug, info, warn, error, fatal) (default "info")
+      --log-opt value                         Default log driver options for containers (default map[])
+      --max-concurrent-downloads int          Set the max concurrent downloads for each pull (default 3)
+      --max-concurrent-uploads int            Set the max concurrent uploads for each push (default 5)
+      --mtu int                               Set the containers network MTU
+      --oom-score-adjust int                  Set the oom_score_adj for the daemon (default -500)
+  -p, --pidfile string                        Path to use for daemon PID file (default "/var/run/docker.pid")
+      --raw-logs                              Full timestamps without ANSI coloring
+      --registry-mirror value                 Preferred Docker registry mirror (default [])
+      --selinux-enabled                       Enable selinux support
+      --shutdown-timeout=15                   Set the shutdown timeout value in seconds
+  -s, --storage-driver string                 Storage driver to use
+      --storage-opt value                     Storage driver options (default [])
+      --swarm-default-advertise-addr string   Set default address or interface for swarm advertised address
+      --tls                                   Use TLS; implied by --tlsverify
+      --tlscacert string                      Trust certs signed only by this CA (default "/root/.docker/ca.pem")
+      --tlscert string                        Path to TLS certificate file (default "/root/.docker/cert.pem")
+      --tlskey string                         Path to TLS key file (default "/root/.docker/key.pem")
+      --tlsverify                             Use TLS and verify the remote
+      --userland-proxy                        Use userland proxy for loopback traffic (default true)
+      --userland-proxy-path string            Path to the userland proxy binary
+      --userns-remap string                   User/Group setting for user namespaces
+  -v, --version                               Print version information and quit
 ```
 
 Options with [] may be specified multiple times.
@@ -103,7 +109,7 @@ membership.
 If you need to access the Docker daemon remotely, you need to enable the `tcp`
 Socket. Beware that the default setup provides un-encrypted and
 un-authenticated direct access to the Docker daemon - and should be secured
-either using the [built in HTTPS encrypted socket](../../security/https.md), or by
+either using the [built in HTTPS encrypted socket](https://docs.docker.com/engine/security/https/), or by
 putting a secure web proxy in front of it. You can listen on port `2375` on all
 network interfaces with `-H tcp://0.0.0.0:2375`, or on a particular network
 interface using its IP address: `-H tcp://192.168.59.103:2375`. It is
@@ -283,7 +289,7 @@ options for `zfs` start with `zfs` and options for `btrfs` start with `btrfs`.
 
 #### Devicemapper options
 
-*  `dm.thinpooldev`
+*   `dm.thinpooldev`
 
     Specifies a custom block storage device to use for the thin pool.
 
@@ -310,7 +316,7 @@ options for `zfs` start with `zfs` and options for `btrfs` start with `btrfs`.
     $ sudo dockerd --storage-opt dm.thinpooldev=/dev/mapper/thin-pool
     ```
 
-*  `dm.basesize`
+*   `dm.basesize`
 
     Specifies the size to use when creating the base device, which limits the
     size of images and containers. The default value is 10G. Note, thin devices
@@ -327,7 +333,6 @@ options for `zfs` start with `zfs` and options for `btrfs` start with `btrfs`.
     ```bash
     $ sudo dockerd --storage-opt dm.basesize=50G
     ```
-
 
     This will increase the base device size to 50G. The Docker daemon will throw an
     error if existing base device size is larger than 50G. A user can use
@@ -349,7 +354,7 @@ options for `zfs` start with `zfs` and options for `btrfs` start with `btrfs`.
     $ sudo dockerd --storage-opt dm.basesize=20G
     ```
 
-*  `dm.loopdatasize`
+*   `dm.loopdatasize`
 
     > **Note**:
     > This option configures devicemapper loopback, which should not
@@ -366,7 +371,7 @@ options for `zfs` start with `zfs` and options for `btrfs` start with `btrfs`.
     $ sudo dockerd --storage-opt dm.loopdatasize=200G
     ```
 
-*  `dm.loopmetadatasize`
+*   `dm.loopmetadatasize`
 
     > **Note**:
     > This option configures devicemapper loopback, which should not
@@ -383,7 +388,7 @@ options for `zfs` start with `zfs` and options for `btrfs` start with `btrfs`.
     $ sudo dockerd --storage-opt dm.loopmetadatasize=4G
     ```
 
-*  `dm.fs`
+*   `dm.fs`
 
     Specifies the filesystem type to use for the base device. The supported
     options are "ext4" and "xfs". The default is "xfs"
@@ -394,7 +399,7 @@ options for `zfs` start with `zfs` and options for `btrfs` start with `btrfs`.
     $ sudo dockerd --storage-opt dm.fs=ext4
     ```
 
-*  `dm.mkfsarg`
+*   `dm.mkfsarg`
 
     Specifies extra mkfs arguments to be used when creating the base device.
 
@@ -404,7 +409,7 @@ options for `zfs` start with `zfs` and options for `btrfs` start with `btrfs`.
     $ sudo dockerd --storage-opt "dm.mkfsarg=-O ^has_journal"
     ```
 
-*  `dm.mountopt`
+*   `dm.mountopt`
 
     Specifies extra mount options used when mounting the thin devices.
 
@@ -414,7 +419,7 @@ options for `zfs` start with `zfs` and options for `btrfs` start with `btrfs`.
     $ sudo dockerd --storage-opt dm.mountopt=nodiscard
     ```
 
-*  `dm.datadev`
+*   `dm.datadev`
 
     (Deprecated, use `dm.thinpooldev`)
 
@@ -432,7 +437,7 @@ options for `zfs` start with `zfs` and options for `btrfs` start with `btrfs`.
           --storage-opt dm.metadatadev=/dev/sdc1
     ```
 
-*  `dm.metadatadev`
+*   `dm.metadatadev`
 
     (Deprecated, use `dm.thinpooldev`)
 
@@ -456,7 +461,7 @@ options for `zfs` start with `zfs` and options for `btrfs` start with `btrfs`.
           --storage-opt dm.metadatadev=/dev/sdc1
     ```
 
-*  `dm.blocksize`
+*   `dm.blocksize`
 
     Specifies a custom blocksize to use for the thin pool. The default
     blocksize is 64K.
@@ -467,7 +472,7 @@ options for `zfs` start with `zfs` and options for `btrfs` start with `btrfs`.
     $ sudo dockerd --storage-opt dm.blocksize=512K
     ```
 
-*  `dm.blkdiscard`
+*   `dm.blkdiscard`
 
     Enables or disables the use of blkdiscard when removing devicemapper
     devices. This is enabled by default (only) if using loopback devices and is
@@ -483,7 +488,7 @@ options for `zfs` start with `zfs` and options for `btrfs` start with `btrfs`.
     $ sudo dockerd --storage-opt dm.blkdiscard=false
     ```
 
-*  `dm.override_udev_sync_check`
+*   `dm.override_udev_sync_check`
 
     Overrides the `udev` synchronization checks between `devicemapper` and `udev`.
     `udev` is the device manager for the Linux kernel.
@@ -523,7 +528,7 @@ options for `zfs` start with `zfs` and options for `btrfs` start with `btrfs`.
     > Otherwise, set this flag for migrating existing Docker daemons to
     > a daemon with a supported environment.
 
-*  `dm.use_deferred_removal`
+*   `dm.use_deferred_removal`
 
     Enables use of deferred device removal if `libdm` and the kernel driver
     support the mechanism.
@@ -545,7 +550,7 @@ options for `zfs` start with `zfs` and options for `btrfs` start with `btrfs`.
     $ sudo dockerd --storage-opt dm.use_deferred_removal=true
     ```
 
-*  `dm.use_deferred_deletion`
+*   `dm.use_deferred_deletion`
 
     Enables use of deferred device deletion for thin pool devices. By default,
     thin pool device deletion is synchronous. Before a container is deleted,
@@ -571,7 +576,7 @@ options for `zfs` start with `zfs` and options for `btrfs` start with `btrfs`.
     when unintentional leaking of mount point happens across multiple mount
     namespaces.
 
-*  `dm.min_free_space`
+*   `dm.min_free_space`
 
     Specifies the min free space percent in a thin pool require for new device
     creation to succeed. This check applies to both free data space as well
@@ -619,7 +624,7 @@ options for `zfs` start with `zfs` and options for `btrfs` start with `btrfs`.
 
 #### ZFS options
 
-* `zfs.fsname`
+*   `zfs.fsname`
 
     Set zfs filesystem under which docker will create its own datasets.
     By default docker will pick up the zfs filesystem where docker graph
@@ -633,9 +638,9 @@ options for `zfs` start with `zfs` and options for `btrfs` start with `btrfs`.
 
 #### Btrfs options
 
-* `btrfs.min_space`
+*   `btrfs.min_space`
 
-    Specifies the mininum size to use when creating the subvolume which is used
+    Specifies the minimum size to use when creating the subvolume which is used
     for containers. If user uses disk quota for btrfs when creating or running
     a container with **--storage-opt size** option, docker should ensure the
     **size** cannot be smaller than **btrfs.min_space**.
@@ -648,7 +653,7 @@ options for `zfs` start with `zfs` and options for `btrfs` start with `btrfs`.
 
 #### Overlay2 options
 
-* `overlay2.override_kernel_check`
+*   `overlay2.override_kernel_check`
 
     Overrides the Linux kernel version check allowing overlay2. Support for
     specifying multiple lower directories needed by overlay2 was added to the
@@ -676,19 +681,20 @@ Runtimes can be registered with the daemon either via the
 configuration file or using the `--add-runtime` command line argument.
 
 The following is an example adding 2 runtimes via the configuration:
+
 ```json
-	"default-runtime": "runc",
-	"runtimes": {
-		"runc": {
-			"path": "runc"
-		},
-		"custom": {
-			"path": "/usr/local/bin/my-runc-replacement",
-			"runtimeArgs": [
-				"--debug"
-			]
-		}
+"default-runtime": "runc",
+"runtimes": {
+	"runc": {
+		"path": "runc"
+	},
+	"custom": {
+		"path": "/usr/local/bin/my-runc-replacement",
+		"runtimeArgs": [
+			"--debug"
+		]
 	}
+}
 ```
 
 This is the same example via the command line:
@@ -848,35 +854,35 @@ $ sudo dockerd \
 
 The currently supported cluster store options are:
 
-*  `discovery.heartbeat`
+*   `discovery.heartbeat`
 
     Specifies the heartbeat timer in seconds which is used by the daemon as a
     keepalive mechanism to make sure discovery module treats the node as alive
     in the cluster. If not configured, the default value is 20 seconds.
 
-*  `discovery.ttl`
+*   `discovery.ttl`
 
     Specifies the ttl (time-to-live) in seconds which is used by the discovery
     module to timeout a node if a valid heartbeat is not received within the
     configured ttl value. If not configured, the default value is 60 seconds.
 
-*  `kv.cacertfile`
+*   `kv.cacertfile`
 
     Specifies the path to a local file with PEM encoded CA certificates to trust
 
-*  `kv.certfile`
+*   `kv.certfile`
 
     Specifies the path to a local file with a PEM encoded certificate.  This
     certificate is used as the client cert for communication with the
     Key/Value store.
 
-*  `kv.keyfile`
+*   `kv.keyfile`
 
     Specifies the path to a local file with a PEM encoded private key.  This
     private key is used as the client key for communication with the
     Key/Value store.
 
-*  `kv.path`
+*   `kv.path`
 
     Specifies the path in the Key/Value store. If not configured, the default value is 'docker/nodes'.
 
@@ -953,11 +959,6 @@ will occur so that the subordinate uid and gid information can be read, given
 these resources are name-based, not id-based.  If the numeric ID information
 provided does not exist as entries in `/etc/passwd` or `/etc/group`, daemon
 startup will fail with an error message.
-
-> **Note:** On Fedora 22, you have to `touch` the `/etc/subuid` and `/etc/subgid`
-> files to have ranges assigned when users are created.  This must be done
-> *before* the `--userns-remap` option is enabled. Once these files exist, the
-> daemon can be (re)started and range assignment on user creation works properly.
 
 **Example: starting with default Docker user management:**
 
@@ -1114,6 +1115,7 @@ This is a full example of the allowed configuration options on Linux:
 	"dns-search": [],
 	"exec-opts": [],
 	"exec-root": "",
+	"experimental": false,
 	"storage-driver": "",
 	"storage-opts": [],
 	"labels": [],
@@ -1128,6 +1130,7 @@ This is a full example of the allowed configuration options on Linux:
 	"cluster-advertise": "",
 	"max-concurrent-downloads": 3,
 	"max-concurrent-uploads": 5,
+	"shutdown-timeout": 15,
 	"debug": true,
 	"hosts": [],
 	"log-level": "",
@@ -1194,6 +1197,7 @@ This is a full example of the allowed configuration options on Windows:
     "dns-opts": [],
     "dns-search": [],
     "exec-opts": [],
+    "experimental": false,
     "storage-driver": "",
     "storage-opts": [],
     "labels": [],
@@ -1204,6 +1208,7 @@ This is a full example of the allowed configuration options on Windows:
     "graph": "",
     "cluster-store": "",
     "cluster-advertise": "",
+    "shutdown-timeout": 15,
     "debug": true,
     "hosts": [],
     "log-level": "",
@@ -1239,7 +1244,7 @@ The list of currently supported options that can be reconfigured is this:
 - `cluster-store-opts`: it uses the new options to reload the discovery store.
 - `cluster-advertise`: it modifies the address advertised after reloading.
 - `labels`: it replaces the daemon labels with a new set of labels.
-- `live-restore`: Enables [keeping containers alive during daemon downtime](../../admin/live-restore.md).
+- `live-restore`: Enables [keeping containers alive during daemon downtime](https://docs.docker.com/engine/admin/live-restore/).
 - `max-concurrent-downloads`: it updates the max concurrent downloads for each pull.
 - `max-concurrent-uploads`: it updates the max concurrent uploads for each push.
 - `default-runtime`: it updates the runtime to be used if not is
@@ -1248,12 +1253,13 @@ The list of currently supported options that can be reconfigured is this:
 - `runtimes`: it updates the list of available OCI runtimes that can
   be used to run containers
 - `authorization-plugin`: specifies the authorization plugins to use.
+- `insecure-registries`: it replaces the daemon insecure registries with a new set of insecure registries. If some existing insecure registries in daemon's configuration are not in newly reloaded insecure resgitries, these existing ones will be removed from daemon's config.
 
 Updating and reloading the cluster configurations such as `--cluster-store`,
 `--cluster-advertise` and `--cluster-store-opts` will take effect only if
 these configurations were not previously configured. If `--cluster-store`
 has been provided in flags and `cluster-advertise` not, `cluster-advertise`
-can be added in the configuration file without accompanied by `--cluster-store`
+can be added in the configuration file without accompanied by `--cluster-store`.
 Configuration reload will log a warning message if it detects a change in
 previously configured cluster configurations.
 

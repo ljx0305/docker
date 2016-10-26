@@ -63,17 +63,9 @@ func (daemon *Daemon) buildSandboxOptions(container *container.Container) ([]lib
 		sboxOptions = append(sboxOptions, libnetwork.OptionUseExternalKey())
 	}
 
-	container.HostsPath, err = container.GetRootResourcePath("hosts")
-	if err != nil {
+	if err = setupPathsAndSandboxOptions(container, &sboxOptions); err != nil {
 		return nil, err
 	}
-	sboxOptions = append(sboxOptions, libnetwork.OptionHostsPath(container.HostsPath))
-
-	container.ResolvConfPath, err = container.GetRootResourcePath("resolv.conf")
-	if err != nil {
-		return nil, err
-	}
-	sboxOptions = append(sboxOptions, libnetwork.OptionResolvConfPath(container.ResolvConfPath))
 
 	if len(container.HostConfig.DNS) > 0 {
 		dns = container.HostConfig.DNS
@@ -388,12 +380,12 @@ func (daemon *Daemon) findAndAttachNetwork(container *container.Container, idOrN
 }
 
 // updateContainerNetworkSettings update the network settings
-func (daemon *Daemon) updateContainerNetworkSettings(container *container.Container, endpointsConfig map[string]*networktypes.EndpointSettings) error {
+func (daemon *Daemon) updateContainerNetworkSettings(container *container.Container, endpointsConfig map[string]*networktypes.EndpointSettings) {
 	var n libnetwork.Network
 
 	mode := container.HostConfig.NetworkMode
 	if container.Config.NetworkDisabled || mode.IsContainer() {
-		return nil
+		return
 	}
 
 	networkName := mode.NetworkName()
@@ -443,22 +435,20 @@ func (daemon *Daemon) updateContainerNetworkSettings(container *container.Contai
 	}
 
 	if !mode.IsUserDefined() {
-		return nil
+		return
 	}
 	// Make sure to internally store the per network endpoint config by network name
 	if _, ok := container.NetworkSettings.Networks[networkName]; ok {
-		return nil
+		return
 	}
 
 	if n != nil {
 		if nwConfig, ok := container.NetworkSettings.Networks[n.ID()]; ok {
 			container.NetworkSettings.Networks[networkName] = nwConfig
 			delete(container.NetworkSettings.Networks, n.ID())
-			return nil
+			return
 		}
 	}
-
-	return nil
 }
 
 func (daemon *Daemon) allocateNetwork(container *container.Container) error {
@@ -479,10 +469,7 @@ func (daemon *Daemon) allocateNetwork(container *container.Container) error {
 			return nil
 		}
 
-		err := daemon.updateContainerNetworkSettings(container, nil)
-		if err != nil {
-			return err
-		}
+		daemon.updateContainerNetworkSettings(container, nil)
 		updateSettings = true
 	}
 
@@ -809,9 +796,7 @@ func (daemon *Daemon) initializeNetworking(container *container.Container) error
 		if err != nil {
 			return err
 		}
-		container.HostnamePath = nc.HostnamePath
-		container.HostsPath = nc.HostsPath
-		container.ResolvConfPath = nc.ResolvConfPath
+		initializeNetworkingPaths(container, nc)
 		container.Config.Hostname = nc.Config.Hostname
 		container.Config.Domainname = nc.Config.Domainname
 		return nil
